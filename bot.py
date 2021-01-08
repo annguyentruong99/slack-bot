@@ -1,4 +1,3 @@
-import slack
 import os
 import re
 import json
@@ -15,8 +14,12 @@ env_path = Path(".") / ".env"
 load_dotenv(dotenv_path=env_path)
 
 app = Flask(__name__) # create a Flask application from the current file
-client = slack.WebClient(token=os.environ["SLACK_TOKEN"]) # Slack web client
 
+# This function is dedicated to posting messages to posting message to Slack
+def post_message(message):
+  webhook_url = "https://hooks.slack.com/services/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"
+  slack_data = {'text': message, 'response_type': 'in_channel'}
+	response = requests.post(webhook_url, data=json.dumps(slack_data), headers={'Content-Type': 'application/json'})
 
 # This function is to show the instruction to the new users, helpful when the application scale
 def help_command():
