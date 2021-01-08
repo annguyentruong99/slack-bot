@@ -23,7 +23,7 @@ def post_message(message):
 
 # This function is to show the instruction to the new users, helpful when the application scale
 def help_command():
-  return "Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba tao-tai-khoan <username> <email>"
+  return post_message("Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba tao-tai-khoan <username> <email>")
 
 # This function is to handle the registration of new students
 def register_student(username, email):
@@ -44,8 +44,8 @@ def register_student(username, email):
   res = request("POST", url, headers=headers, data=json.dumps(student_metadata))
   res_code = res.json()["code"]
   if res_code == 406: # Check whether the account has been created in the system
-    return "Tài khoản này đã có trong hệ thống"
-  return f"Tài khoản đã được tạo! :tada:\n\tusername: {username}\n\temail: {email}\n\tpassword: {password}"
+    return post_message("Tài khoản này đã có trong hệ thống")
+  return post_message(f"Tài khoản đã được tạo! :tada:\n\tusername: {username}\n\temail: {email}\n\tpassword: {password}")
   
 
 
@@ -59,13 +59,13 @@ def request_handler(message):
     return help_command()
   elif command == "tao-tai-khoan" and len(message) == 2:
     if len(message) == 0:
-      return "Chưa có username và/hoặc email của học sinh"
+      return post_message("Chưa có username và/hoặc email của học sinh")
     else:
       username = message[0]
       email = message[1]
       return register_student(username, email)
   else:
-    return "Làm gì có cái câu lệnh như thế lày! :grinning: Mời bạn chạy /cba huong-dan nếu chưa biết dùng hoặc kiểm tra lại xem có sai sót trong câu lệnh không :grinning:"
+    return post_message(notFound)
 
 @app.route("/", methods=["POST"])
 def main():
