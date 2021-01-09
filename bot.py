@@ -15,13 +15,19 @@ load_dotenv(dotenv_path=env_path)
 
 app = Flask(__name__) # create a Flask application from the current file
 
+# This function is dedicated to posting messages to posting message to Slack
+def post_message(message):
+  webhook_url = os.environ["WEBHOOK_URL"]
+  slack_data = {'text': message, 'response_type': 'in_channel'}
+  response = requests.post(webhook_url, data=json.dumps(slack_data), headers={'Content-Type': 'application/json'})
+
 # This function is to show the instruction to the new users, helpful when the application scale
 def help_command():
   return "Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba tao-tai-khoan <username> <email>"
 
 # This function is to handle the registration of new students
 def register_student(username, email):
-  url = "https://cbavn.com/wp-json/wp/v2/users/register"
+  url = os.environ["USERS_API"]
   password = ''
   password_chars = string.ascii_letters + string.digits + string.punctuation # This is to create a string contains all alphabetical letters, numbers, and punctuations
   # repeat the action 15 times to get a password that contain 15 random characters
