@@ -15,12 +15,6 @@ load_dotenv(dotenv_path=env_path)
 
 app = Flask(__name__) # create a Flask application from the current file
 
-# This function is dedicated to posting messages to posting message to Slack
-def post_message(message):
-  webhook_url = "https://hooks.slack.com/services/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"
-  slack_data = {'text': message, 'response_type': 'in_channel'}
-  response = requests.post(webhook_url, data=json.dumps(slack_data), headers={'Content-Type': 'application/json'})
-
 # This function is to show the instruction to the new users, helpful when the application scale
 def help_command():
   return "Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba tao-tai-khoan <username> <email>"
@@ -48,6 +42,10 @@ def register_student(username, email):
   return f"Tài khoản đã được tạo! :tada:\n\tusername: {username}\n\temail: {email}\n\tpassword: {password}"
   
 
+# This function is to add the course to a new or existing account
+def assign_course(user_id, course_id):
+  pass
+
 
 # This function is to handle the message execution word following the slash command
 def request_handler(message):
@@ -65,7 +63,7 @@ def request_handler(message):
       email = message[1]
       return register_student(username, email)
   else:
-    return post_message(notFound)
+    return notFound
 
 @app.route("/", methods=["POST"])
 def main():
