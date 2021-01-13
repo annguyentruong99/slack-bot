@@ -38,7 +38,7 @@ def get_course_ids() -> dict:
 
 # This function is to show the instruction to the new users, helpful when the application scale
 def help_command() -> str:
-  return post_message("Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba tao-tai-khoan <email> <course_id>")
+  return post_message("Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba ma-khoa-hoc\n\t/cba tao-tai-khoan <email> <course_id>")
 
 def register_course(url, course_id):
   course_data = {
@@ -51,7 +51,7 @@ def register_course(url, course_id):
   response = requests.request("POST", url, headers=headers, data=json.dumps(course_data))
 
 # This function is to handle the registration of new students
-def register_student(email: str, course_id=None) -> str:
+def register_student(email: str, course_id=None):
   url = os.environ["USERS_API"]
   password = ''
   username = email.split("@")[0]
@@ -69,16 +69,16 @@ def register_student(email: str, course_id=None) -> str:
   'Content-Type': 'application/json'
   }
   res = requests.request("POST", url, headers=headers, data=json.dumps(student_metadata))
-  course_url = res.json()["_links"]["courses"][0]["href"]
-  register_course(course_url, course_id)
-  if res != None:
+  if str(res) == "<Response [201]>":
+    course_url = res.json()["_links"]["courses"][0]["href"]
+    register_course(course_url, course_id)
     post_message(f"Tài khoản của học sinh đã được tạo thành công, dưới đây là thông tin của tài khoản:\n\t Username: {username} \n\t Password: {password} ")
-  else:
+  if str(res) == "<Response [400]>":
     post_message("Lập tài khoản thất bại, thử lại hoặc kiểm tra hệ thống xem tài khoản đã được lập chưa.")
   
 
 # This function is to handle the message execution word following the slash command
-def request_handler(message:str) -> str:
+def request_handler(message:str):
   message = message.split(" ")
   command = message[0] # Extract the message execution word
   message = message[1:] # Extract the command's params
@@ -107,6 +107,17 @@ def request_handler(message:str) -> str:
 
 @app.route("/", methods=["POST"])
 def main():
+  message = request.form.get("text")
+  thr = Thread(target=request_handler, args=[message])
+  thr.start()
+  data = {
+    "text": "Loading...",
+    "response_type": "in_channel"
+  }
+  return Response(response=json.dumps(data), status=200, mimetype="application/json")
+
+@app.route("/test", methods=["POST"])
+def test():
   message = request.form.get("text")
   thr = Thread(target=request_handler, args=[message])
   thr.start()
