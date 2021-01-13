@@ -40,16 +40,18 @@ def get_course_ids() -> dict:
 def help_command() -> str:
   return post_message("Hướng Dẫn Sử Dụng Trước Khi Dùng:\n\t/cba huong-dan\n\t/cba tao-tai-khoan <email> <course_id>")
 
-def post_req(url: str, data: dict) -> bool:
+def register_course(url, course_id):
+  course_data = {
+    "course_ids": course_id
+  }
   headers = {
   'Authorization': os.environ["AUTH"],
   'Content-Type': 'application/json'
   }
-  res = requests.request("POST", url, headers=headers, data=json.dumps(data))
-  return True
+  response = requests.request("POST", url, headers=headers, data=json.dumps(course_data))
 
 # This function is to handle the registration of new students
-def register_student(email: str) -> str:
+def register_student(email: str, course_id=None) -> str:
   url = os.environ["USERS_API"]
   password = ''
   username = email.split("@")[0]
@@ -62,11 +64,17 @@ def register_student(email: str) -> str:
     "email": email,
     "password": password
   }
-  post_req(url, student_metadata)
-  if post_req(url, student_metadata) == True:
-    return post_message(f"Tài khoản của học sinh đã được tạo thành công, dưới đây là thông tin của tài khoản:\n\t Username: {username} \n\t Password: {password}")
+  headers = {
+  'Authorization': os.environ["AUTH"],
+  'Content-Type': 'application/json'
+  }
+  res = requests.request("POST", url, headers=headers, data=json.dumps(student_metadata))
+  course_url = res.json()["_links"]["courses"][0]["href"]
+  register_course(course_url, course_id)
+  if res != None:
+    post_message(f"Tài khoản của học sinh đã được tạo thành công, dưới đây là thông tin của tài khoản:\n\t Username: {username} \n\t Password: {password} ")
   else:
-    return post_message("Lập tài khoản thất bại, thử lại hoặc kiểm tra hệ thống xem tài khoản đã được lập chưa.")
+    post_message("Lập tài khoản thất bại, thử lại hoặc kiểm tra hệ thống xem tài khoản đã được lập chưa.")
   
 
 # This function is to handle the message execution word following the slash command
@@ -82,7 +90,8 @@ def request_handler(message:str) -> str:
       return post_message("Chưa có username và/hoặc email của học sinh")
     else:
       email = message[0]
-      return register_student(email)
+      course_id = message[1]
+      register_student(email, course_id)
   elif command == "ma-khoa-hoc":
     course_ids = get_course_ids()
     message = ""
