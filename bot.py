@@ -28,7 +28,7 @@ def get_course_ids() -> dict:
   url = os.environ["COURSES_API"]
   payload={}
   headers = {
-    'Authorization': 'Basic YW4ubmd1eWVudHJ1b25nOTlAZ21haWwuY29tOkx1b2N0aGl0Z2ExMjM='
+    'Authorization': os.environ["AUTH"]
   }
   response = requests.request("GET", url, headers=headers, data=payload)
   for res in response.json():
@@ -88,6 +88,9 @@ def request_handler(message:str) -> str:
   elif command == "tao-tai-khoan" and len(message) >= 1:
     if len(message) == 0:
       return post_message("Chưa có username và/hoặc email của học sinh")
+    elif len(message) == 1:
+      email = message[0]
+      register_student(email)
     else:
       email = message[0]
       course_id = message[1]
