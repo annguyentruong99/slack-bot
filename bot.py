@@ -73,7 +73,7 @@ def register_student(email: str, course_id=None):
     course_url = res.json()["_links"]["courses"][0]["href"]
     register_course(course_url, course_id)
     post_message(f"Tài khoản của học sinh đã được tạo thành công, dưới đây là thông tin của tài khoản:\n\t Username: {username} \n\t Password: {password} ")
-  if str(res) == "<Response [400]>":
+  else:
     post_message("Lập tài khoản thất bại, thử lại hoặc kiểm tra hệ thống xem tài khoản đã được lập chưa.")
   
 
@@ -116,17 +116,5 @@ def main():
   }
   return Response(response=json.dumps(data), status=200, mimetype="application/json")
 
-@app.route("/test", methods=["POST"])
-def test():
-  message = request.form.get("text")
-  thr = Thread(target=request_handler, args=[message])
-  thr.start()
-  data = {
-    "text": "Loading...",
-    "response_type": "in_channel"
-  }
-  return Response(response=json.dumps(data), status=200, mimetype="application/json")
-
-
 if __name__ == "__main__":
-  app.run(debug=True)
+  app.run()
